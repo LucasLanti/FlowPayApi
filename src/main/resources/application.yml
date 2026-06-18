@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: flow-pay
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:insert.sql
+
+server:
+  port: ${SERVER_PORT:8081}
+
+app:
+  rabbitmq:
+    ticket-exchange: ticket.exchange
+    ticket-processing-delay: 5000
+    cards:
+      queue: ticket.pending.cards.queue
+      routing-key: ticket.pending.cards
+    borrow:
+      queue: ticket.pending.borrow.queue
+      routing-key: ticket.pending.borrow
+    others:
+      queue: ticket.pending.others.queue
+      routing-key: ticket.pending.others
