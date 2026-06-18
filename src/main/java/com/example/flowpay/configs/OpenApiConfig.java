@@ -14,7 +14,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("FlowPay API")
-                        .description("Documentacao da API do FlowPay.")
+                        .description("Documentação da API do FlowPay.")
                         .version("v1"));
     }
 }

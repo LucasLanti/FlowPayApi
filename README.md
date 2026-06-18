@@ -110,7 +110,7 @@ Retorna todos os times cadastrados.
 POST /ticket
 ```
 
-Cria um ticket.
+Cria um ticket e publica a solicitação na fila RabbitMQ do time informado.
 
 ```json
 {
@@ -118,6 +118,11 @@ Cria um ticket.
   "content": "Descricao da solicitacao"
 }
 ```
+
+Validações:
+
+- `teamId` e obrigatório.
+- `content` e obrigatório e aceita no máximo 100 caracteres.
 
 ```http
 GET /ticket/{teamId}?status=IN_PROGRESS&page=0&size=10
@@ -146,11 +151,67 @@ Cria um atendente.
 }
 ```
 
+Validações:
+
+- `teamId` e obrigatório.
+- `name` e obrigatório e aceita no máximo 50 caracteres.
+- Nao e permitido cadastrar dois atendentes com o mesmo nome, ignorando maiúsculas e minusculas.
+
 ```http
 GET /attendant/all?page=0&size=100
 ```
 
 Lista atendentes cadastrados.
+
+### Dashboard
+
+```http
+GET /dashboard
+```
+
+Retorna os dados consolidados para o dashboard operacional:
+
+- total de atendimentos pendentes nas filas RabbitMQ;
+- total de atendimentos em andamento;
+- total de atendimentos finalizados;
+- total geral de atendimentos;
+- total de atendentes cadastrados;
+- total de atendentes com atendimentos em andamento;
+- contagem por fila/time;
+- carga de atendimentos por atendente.
+
+Exemplo de resposta:
+
+```json
+{
+  "data": {
+    "totalQueuedTickets": 3,
+    "totalInProgressTickets": 5,
+    "totalFinishedTickets": 12,
+    "totalTickets": 20,
+    "totalAttendants": 4,
+    "attendantsWithTickets": 2,
+    "queues": [
+      {
+        "teamId": "uuid-do-time",
+        "teamName": "CARDS",
+        "queuedTickets": 1,
+        "inProgressTickets": 2,
+        "finishedTickets": 7,
+        "totalTickets": 10
+      }
+    ],
+    "attendants": [
+      {
+        "attendantId": "uuid-do-atendente",
+        "attendantName": "Ana",
+        "teamName": "CARDS",
+        "inProgressTickets": 2
+      }
+    ]
+  }
+}
+```
 
 ## Estrutura
 
@@ -170,3 +231,4 @@ src/test/java/com/example/flowpay               Testes automatizados
 - O banco e inicializado com `src/main/resources/insert.sql`.
 - O Hibernate esta configurado com `ddl-auto: update`.
 - Tickets usam filas RabbitMQ por time para processamento.
+- O dashboard consulta as filas RabbitMQ para contabilizar atendimentos pendentes.

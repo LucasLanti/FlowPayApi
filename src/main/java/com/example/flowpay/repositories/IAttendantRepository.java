@@ -16,6 +16,8 @@ import com.example.flowpay.utils.enums.TicketTeamEnum;
 import jakarta.persistence.LockModeType;
 
 public interface IAttendantRepository extends JpaRepository<Attendant, UUID> {
+    boolean existsByNameIgnoreCase(String name);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
                 SELECT a

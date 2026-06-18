@@ -41,6 +41,10 @@ public class AttendantService implements IAttendantService {
 
     @Override
     public void addAttendant(AttendantDto attendantRequest) {
+        if (attendantRepository.existsByNameIgnoreCase(attendantRequest.getName())) {
+            throw new BadRequestException("attendant.name.already_exists");
+        }
+
         Team team = teamService.getTeamById(attendantRequest.getTeamId())
                 .orElseThrow(() -> new BadRequestException("attendant.teamId.not_found"));
 

@@ -65,6 +65,10 @@ class AttendantTest {
         when(teams.getTeamById(teamId)).thenReturn(Optional.of(team));
         service.addAttendant(new AttendantDto("Ana", teamId));
         verify(repository).save(any(Attendant.class));
+        when(repository.existsByNameIgnoreCase("Duplicado")).thenReturn(true);
+        BadRequestException duplicateName = assertThrows(BadRequestException.class,
+                () -> service.addAttendant(new AttendantDto("Duplicado", teamId)));
+        assertEquals("attendant.name.already_exists", duplicateName.getKeyMessage());
         UUID missingTeamId = UUID.randomUUID();
         when(teams.getTeamById(missingTeamId)).thenReturn(Optional.empty());
         assertThrows(BadRequestException.class, () -> service.addAttendant(new AttendantDto("Ana", missingTeamId)));
